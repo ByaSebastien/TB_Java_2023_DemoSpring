@@ -1,17 +1,18 @@
 package be.bstorm.controllers;
 
-import be.bstorm.models.dtos.BookDTO;
-import be.bstorm.models.dtos.BookShortDTO;
+import be.bstorm.models.dtos.book.BookDTO;
+import be.bstorm.models.dtos.book.BookShortDTO;
 import be.bstorm.models.entities.Book;
 import be.bstorm.models.forms.BookForm;
 import be.bstorm.services.BookService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
-@RestController
+@Controller
 @RequestMapping("/book")
 public class BookController {
 
@@ -21,41 +22,34 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    @PostMapping
-    public ResponseEntity<BookDTO> create(@RequestBody BookForm book) {
-        Book createdBook = bookService.create(book.toEntity());
-//        BookShortDTO dto = new BookShortDTO(createdBook);
-        BookDTO dto = BookDTO.fromEntity(createdBook);
-        return ResponseEntity.ok(dto);
+    @GetMapping("/create")
+    public String getCreate(Model model){
+        model.addAttribute("book",new BookForm());
+        return "book/create";
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<BookDTO> findOneById(@PathVariable Long id) {
-        Book book = bookService.getOne(id);
-        BookDTO bookDTO = BookDTO.fromEntity(book);
-        return ResponseEntity.ok(bookDTO);
+    @PostMapping("/create")
+    public String postCreate(@ModelAttribute BookForm form){
+        bookService.create(form.toEntity());
+        return "redirect:/book";
     }
 
     @GetMapping
-    public ResponseEntity<List<BookShortDTO>> findAll(){
+    public String findAll(Model model){
         List<Book> books = bookService.getAll();
         List<BookShortDTO> dtos = books.stream()
                 .map(BookShortDTO::fromEntity)
                 .toList();
-        return ResponseEntity.ok(dtos);
+        model.addAttribute("books",dtos);
+        return "book/index";
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<BookDTO> update(@PathVariable Long id,@RequestBody BookForm book){
-        Book updatedBook = bookService.update(id,book.toEntity());
-        BookDTO dto = BookDTO.fromEntity(updatedBook);
-        return ResponseEntity.ok(dto);
+    @GetMapping("/{id}")
+    public String findOne(@PathVariable Long id,Model model){
+        Book book = bookService.getOne(id);
+        BookDTO dto = BookDTO.fromEntity(book);
+        model.addAttribute("book",dto);
+        return "book/detail";
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<BookDTO> delete(@PathVariable Long id){
-        Book deletedBook = bookService.delete(id);
-        BookDTO dto = BookDTO.fromEntity(deletedBook);
-        return ResponseEntity.ok(dto);
-    }
 }
