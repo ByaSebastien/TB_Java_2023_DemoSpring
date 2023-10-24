@@ -15,4 +15,11 @@ public class BookForm {
         book.setDescription(this.description);
         return book;
     }
+
+    public static BookForm fromEntity(Book book){
+        BookForm b = new BookForm();
+        b.setTitle(book.getTitle());
+        b.setDescription(book.getDescription());
+        return b;
+    }
 }

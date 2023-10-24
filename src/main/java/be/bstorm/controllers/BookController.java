@@ -52,4 +52,23 @@ public class BookController {
         return "book/detail";
     }
 
+    @GetMapping("/update/{id}")
+    public String getUpdate(@PathVariable Long id, Model model){
+        Book book = bookService.getOne(id);
+        BookForm form = BookForm.fromEntity(book);
+        model.addAttribute("id",id);
+        model.addAttribute("book",form);
+        return "book/update";
+    }
+    @PostMapping("update/{id}")
+    public String postUpdate(@PathVariable Long id, @ModelAttribute BookForm form){
+        bookService.update(id,form.toEntity());
+        return "redirect:/book";
+    }
+
+    @GetMapping("delete/{id}")
+    public String delete(@PathVariable Long id){
+        bookService.delete(id);
+        return "redirect:/book";
+    }
 }
